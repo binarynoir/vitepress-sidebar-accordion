@@ -1,0 +1,80 @@
+{
+  "name": "@binarynoir/vitepress-sidebar-accordion",
+  "version": "0.1.0",
+  "description": "Make the VitePress sidebar an accordion: one open group per level, and only the current page's branch left open after navigating, as the VuePress sidebar behaved.",
+  "keywords": [
+    "vitepress",
+    "vitepress-plugin",
+    "vitepress-theme",
+    "sidebar",
+    "accordion",
+    "collapsible",
+    "vuepress",
+    "docs",
+    "documentation"
+  ],
+  "license": "MIT",
+  "author": "BinaryNoir",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/binarynoir/vitepress-sidebar-accordion.git"
+  },
+  "homepage": "https://github.com/binarynoir/vitepress-sidebar-accordion#readme",
+  "bugs": {
+    "url": "https://github.com/binarynoir/vitepress-sidebar-accordion/issues"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepublishOnly": "npm run typecheck && npm run test && npm run build",
+    "release": "node scripts/release.js",
+    "release:patch": "node scripts/release.js patch",
+    "release:minor": "node scripts/release.js minor",
+    "release:major": "node scripts/release.js major"
+  },
+  "peerDependencies": {
+    "vitepress": "^1.0.0 || ^2.0.0-0",
+    "vue": "^3.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "eslint": "^10.11.0",
+    "eslint-config-prettier": "^10.1.8",
+    "happy-dom": "^21.0.1",
+    "prettier": "^3.9.8",
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.70.0",
+    "vitepress": "2.0.0-alpha.20",
+    "vitest": "^5.0.1",
+    "vue": "^3.5.0"
+  }
+}
