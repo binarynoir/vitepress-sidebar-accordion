@@ -1,4 +1,7 @@
-import { inBrowser, useRoute } from 'vitepress';
+// A namespace import, not named ones: during the server-side build Node loads
+// VitePress's node entry, which has no `inBrowser` or `useRoute`. Named imports
+// would fail to link there; on the namespace they are just `undefined`.
+import * as vitepress from 'vitepress';
 import { nextTick, onMounted, onUnmounted, watch } from 'vue';
 import { closeOpenSiblings, isOpenGroup, keepActiveBranchOnly } from './accordion.js';
 import { GROUP_SELECTOR, ITEM_HEADER_SELECTOR } from './constants.js';
@@ -42,8 +45,8 @@ export function handleSidebarClick(event: MouseEvent): void {
  * Does nothing during the server-side build.
  */
 export function useSidebarAccordion(): void {
-  if (!inBrowser) return;
-  const route = useRoute();
+  if (!vitepress.inBrowser) return;
+  const route = vitepress.useRoute();
 
   onMounted(() => document.addEventListener('click', handleSidebarClick, true));
   onUnmounted(() => document.removeEventListener('click', handleSidebarClick, true));
