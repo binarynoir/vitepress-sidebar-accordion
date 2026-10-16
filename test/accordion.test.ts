@@ -4,6 +4,7 @@ import {
   getSiblingItems,
   isOpenGroup,
   keepActiveBranchOnly,
+  openActiveBranch,
   toggleGroup,
 } from '../src/accordion.js';
 import { byId, openGroupIds, renderSidebar } from './testUtils.js';
@@ -106,5 +107,16 @@ describe('keepActiveBranchOnly', () => {
     ]);
     keepActiveBranchOnly();
     expect(openGroupIds()).toEqual([]);
+  });
+});
+
+describe('openActiveBranch', () => {
+  it("opens the current page's branch and leaves other open groups alone", () => {
+    renderSidebar([
+      { id: 'guide', open: true, items: [{ id: 'guide-intro' }] },
+      { id: 'api', items: [{ id: 'advanced', items: [{ id: 'api-advanced', active: true }] }] },
+    ]);
+    openActiveBranch();
+    expect(openGroupIds()).toEqual(['guide', 'api', 'advanced']);
   });
 });

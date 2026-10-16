@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-16
+
+### Added
+
+- `closeOthers` option for `useSidebarAccordion()`. Set it to `false` and opening a group no longer closes the others, and navigating no longer closes the branches beside the current page. The current page's branch is still opened after each navigation.
+- `openActiveBranch()` export: opens the current page's branch without closing anything else.
+- `SidebarAccordionOptions` type export.
+
 ## [0.1.0] - 2026-10-15
 
 ### Added

@@ -3,7 +3,7 @@
 // would fail to link there; on the namespace they are just `undefined`.
 import * as vitepress from 'vitepress';
 import { nextTick, onMounted, onUnmounted, watch } from 'vue';
-import { closeOpenSiblings, isOpenGroup, keepActiveBranchOnly } from './accordion.js';
+import { closeOpenSiblings, isOpenGroup, keepActiveBranchOnly, openActiveBranch } from './accordion.js';
 import { GROUP_SELECTOR, ITEM_HEADER_SELECTOR } from './constants.js';
 
 /**
@@ -19,6 +19,18 @@ export function handleSidebarClick(event: MouseEvent): void {
   setTimeout(() => {
     if (isOpenGroup(item)) closeOpenSiblings(item);
   });
+}
+
+/** Options for {@link useSidebarAccordion}. */
+export interface SidebarAccordionOptions {
+  /**
+   * Close the other groups at the same level when a group is opened, and the
+   * branches beside the current page's after navigating. Set it to `false` to
+   * let readers keep several groups open, or open them one at a time by hand;
+   * the current page's branch is still opened after each navigation.
+   * @default true
+   */
+  closeOthers?: boolean;
 }
 
 /**
@@ -42,17 +54,23 @@ export function handleSidebarClick(event: MouseEvent): void {
  * };
  * ```
  *
+ * Pass `{ closeOthers: false }` to stop it closing other groups.
+ *
  * Does nothing during the server-side build.
  */
-export function useSidebarAccordion(): void {
+export function useSidebarAccordion(options: SidebarAccordionOptions = {}): void {
   if (!vitepress.inBrowser) return;
+  const { closeOthers = true } = options;
   const route = vitepress.useRoute();
 
-  onMounted(() => document.addEventListener('click', handleSidebarClick, true));
-  onUnmounted(() => document.removeEventListener('click', handleSidebarClick, true));
+  if (closeOthers) {
+    onMounted(() => document.addEventListener('click', handleSidebarClick, true));
+    onUnmounted(() => document.removeEventListener('click', handleSidebarClick, true));
+  }
+  const afterNavigate = closeOthers ? keepActiveBranchOnly : openActiveBranch;
   watch(
     () => route.path,
     // VitePress opens the active branch on its own next tick; run after it.
-    () => nextTick(() => requestAnimationFrame(() => keepActiveBranchOnly())),
+    () => nextTick(() => requestAnimationFrame(() => afterNavigate())),
   );
 }

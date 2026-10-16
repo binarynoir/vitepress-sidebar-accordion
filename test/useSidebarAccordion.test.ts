@@ -19,8 +19,8 @@ function readerClick(target: Element): MouseEvent {
   return { isTrusted: true, target } as unknown as MouseEvent;
 }
 
-function mountAccordion() {
-  const app = createApp(defineComponent({ setup: () => useSidebarAccordion(), render: () => null }));
+function mountAccordion(options?: Parameters<typeof useSidebarAccordion>[0]) {
+  const app = createApp(defineComponent({ setup: () => useSidebarAccordion(options), render: () => null }));
   app.mount(document.createElement('div'));
   return app;
 }
@@ -100,6 +100,26 @@ describe('useSidebarAccordion', () => {
     vi.runAllTimers();
     expect(openGroupIds()).toEqual(['api']);
     app.unmount();
+  });
+
+  it('leaves other groups open after navigating when closeOthers is false', async () => {
+    renderSidebar([
+      { id: 'guide', open: true, items: [{ id: 'guide-intro' }] },
+      { id: 'api', items: [{ id: 'api-intro', active: true }] },
+    ]);
+    const app = mountAccordion({ closeOthers: false });
+    route.path = '/api/intro';
+    await nextTick();
+    await nextTick();
+    vi.runAllTimers();
+    expect(openGroupIds()).toEqual(['guide', 'api']);
+    app.unmount();
+  });
+
+  it('does not listen for clicks when closeOthers is false', () => {
+    const add = vi.spyOn(document, 'addEventListener');
+    mountAccordion({ closeOthers: false }).unmount();
+    expect(add).not.toHaveBeenCalledWith('click', handleSidebarClick, true);
   });
 
   it('does nothing outside the browser', () => {

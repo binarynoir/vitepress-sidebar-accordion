@@ -35,6 +35,17 @@ export function closeOpenSiblings(item: Element): void {
 }
 
 /**
+ * Opens any group in the current page's branch the reader had closed, and
+ * leaves every other group as it is. VitePress only opens the branch itself
+ * when the page moves into a different one.
+ */
+export function openActiveBranch(root: ParentNode = document): void {
+  for (const item of root.querySelectorAll(ACTIVE_BRANCH_SELECTOR)) {
+    if (item.matches(GROUP_SELECTOR) && !isOpenGroup(item)) toggleGroup(item);
+  }
+}
+
+/**
  * Opens the current page's branch and closes the branches left open beside
  * it. VitePress only opens the branch itself when the page moves into a
  * different one, not when the reader had closed the one it is in.

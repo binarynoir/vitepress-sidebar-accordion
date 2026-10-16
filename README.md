@@ -78,6 +78,24 @@ export default defineConfig({
 Groups without `collapsed` are always open, and the accordion leaves them
 alone.
 
+### Options
+
+`useSidebarAccordion()` takes an options object:
+
+| Option        | Default | What it does                                                                                                                  |
+| ------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `closeOthers` | `true`  | Close the other groups at the same level when a group is opened, and the branches beside the current page's after navigating. |
+
+Set `closeOthers: false` to let readers open and close groups one by one
+without the others closing. They can keep several groups open, or start
+with every group closed and open only the ones they want. After each
+navigation the current page's branch is still opened, but nothing else is
+closed.
+
+```ts
+useSidebarAccordion({ closeOthers: false });
+```
+
 ### With vitepress-auto-sidebar
 
 [vitepress-auto-sidebar](https://github.com/binarynoir/vitepress-auto-sidebar)
@@ -125,12 +143,14 @@ import {
   getSiblingItems,
   isOpenGroup,
   keepActiveBranchOnly,
+  openActiveBranch,
   toggleGroup,
   GROUP_SELECTOR,
   OPEN_GROUP_SELECTOR,
   ACTIVE_BRANCH_SELECTOR,
   ITEM_HEADER_SELECTOR,
 } from '@binarynoir/vitepress-sidebar-accordion';
+import type { SidebarAccordionOptions } from '@binarynoir/vitepress-sidebar-accordion';
 ```
 
 `useSidebarAccordion()` is all most sites need. The rest are the pieces it is
