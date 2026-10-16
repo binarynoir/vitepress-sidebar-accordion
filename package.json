@@ -1,6 +1,6 @@
 {
   "name": "@binarynoir/vitepress-sidebar-accordion",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Make the VitePress sidebar an accordion: one open group per level, and only the current page's branch left open after navigating, as the VuePress sidebar behaved.",
   "keywords": [
     "vitepress",
