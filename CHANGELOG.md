@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-10-16
+
+### Fixed
+
+- The filter field covered the top of the sidebar, hiding matches behind it when only a few were left. It sat a navbar's height too low on wide screens, and half a rem too low on small ones.
+- More room between the filter field and the sidebar's first link, most of all on small screens, where the two touched.
+
+### Changed
+
+- A divider appears under the filter field once the sidebar's links scroll beneath it.
+
 ## [0.3.0] - 2026-10-16
 
 ### Added

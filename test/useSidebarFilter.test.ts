@@ -135,6 +135,21 @@ describe('useSidebarFilter', () => {
     app.unmount();
   });
 
+  it('shows a divider under the field once the sidebar is scrolled', () => {
+    const sidebar = renderSidebar(docs);
+    const app = mountFilter({ minItems: 0 });
+    const field = sidebar.querySelector('.VPSidebarFilter')!;
+    expect(field.classList.contains('is-scrolled')).toBe(false);
+    // The test DOM doesn't lay out or scroll, so the sidebar's scrollTop is set by hand.
+    Object.defineProperty(sidebar, 'scrollTop', { value: 40, configurable: true });
+    sidebar.dispatchEvent(new Event('scroll'));
+    expect(field.classList.contains('is-scrolled')).toBe(true);
+    Object.defineProperty(sidebar, 'scrollTop', { value: 0, configurable: true });
+    sidebar.dispatchEvent(new Event('scroll'));
+    expect(field.classList.contains('is-scrolled')).toBe(false);
+    app.unmount();
+  });
+
   it('uses the labels it is given', () => {
     renderSidebar(docs);
     const app = mountFilter({

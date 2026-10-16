@@ -48,14 +48,22 @@ const defaultLabels: SidebarFilterLabels = {
 const STYLE_ID = 'vp-sidebar-filter-style';
 
 const STYLES = `
+/*
+ * The sidebar measures a sticky element's top from inside its own top padding
+ * (2rem, or the navbar's height on wide screens), as VitePress's .curtain
+ * relies on. A top below that pushes the field down over the sidebar's links.
+ */
 .VPSidebarFilter {
   position: sticky;
-  top: 0;
+  top: -2rem;
   z-index: 2;
-  margin: -0.5rem -2rem 0;
-  padding: 0.5rem 2rem 0.5rem;
+  margin: -1rem -2rem 0;
+  padding: 1rem 2rem;
   background-color: var(--vp-sidebar-bg-color);
+  transition: box-shadow 0.25s;
 }
+/* A divider under the field once the sidebar's links scroll beneath it. */
+.VPSidebarFilter.is-scrolled { box-shadow: 0 1px 0 var(--vp-c-divider); }
 .VPSidebarFilter-field {
   display: flex;
   align-items: center;
@@ -117,7 +125,7 @@ const STYLES = `
   line-height: 1.5;
 }
 @media (min-width: 960px) {
-  .VPSidebarFilter { top: var(--vp-nav-height); margin-top: 0; padding-top: 1rem; }
+  .VPSidebarFilter { top: 0; margin-top: 0; padding-bottom: 0.75rem; }
   .VPSidebarFilter-input { font-size: 0.875rem; }
 }
 .VPSidebar.${FILTERING_CLASS} [${FILTER_HIDDEN_ATTR}] { display: none !important; }
@@ -196,8 +204,22 @@ export function useSidebarFilter(options: SidebarFilterOptions = {}): void {
 
   let matches: Element[] = [];
   let clearedOnEscape = false;
+  /** The sidebar the field is in, watched for scrolling. */
+  let scroller: HTMLElement | undefined;
 
   const getSidebar = () => document.querySelector<HTMLElement>('.VPSidebar');
+
+  function onScroll(): void {
+    root.classList.toggle('is-scrolled', Boolean(scroller && scroller.scrollTop > 0));
+  }
+
+  function watchScroll(sidebar: HTMLElement | undefined): void {
+    if (scroller === sidebar) return;
+    scroller?.removeEventListener('scroll', onScroll);
+    scroller = sidebar;
+    scroller?.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
 
   function apply(): void {
     const sidebar = getSidebar();
@@ -218,9 +240,11 @@ export function useSidebarFilter(options: SidebarFilterOptions = {}): void {
     if (!sidebar || !nav || sidebar.querySelectorAll('.VPSidebarItem.is-link').length < minItems) {
       if (sidebar) clearSidebarFilter(sidebar);
       root.remove();
+      watchScroll(undefined);
       return;
     }
     if (root.parentElement !== sidebar) sidebar.insertBefore(root, nav);
+    watchScroll(sidebar);
     apply();
   }
 
@@ -316,6 +340,7 @@ export function useSidebarFilter(options: SidebarFilterOptions = {}): void {
     const sidebar = getSidebar();
     if (sidebar) clearSidebarFilter(sidebar);
     root.remove();
+    watchScroll(undefined);
   });
   // A new page may bring a new sidebar, or none; run after VitePress renders it.
   watch(
