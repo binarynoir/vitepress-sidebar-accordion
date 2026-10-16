@@ -4,7 +4,8 @@
 import * as vitepress from 'vitepress';
 import { nextTick, onMounted, onUnmounted, watch } from 'vue';
 import { closeOpenSiblings, isOpenGroup, keepActiveBranchOnly, openActiveBranch } from './accordion.js';
-import { GROUP_SELECTOR, ITEM_HEADER_SELECTOR } from './constants.js';
+import { FILTERING_CLASS, GROUP_SELECTOR, ITEM_HEADER_SELECTOR } from './constants.js';
+import { useSidebarFilter, type SidebarFilterOptions } from './useSidebarFilter.js';
 
 /**
  * A group was toggled open by the reader: close the others at its level.
@@ -16,6 +17,8 @@ export function handleSidebarClick(event: MouseEvent): void {
   if (!event.isTrusted || !(event.target instanceof Element)) return;
   const item = event.target.closest(ITEM_HEADER_SELECTOR)?.parentElement;
   if (!item?.matches(GROUP_SELECTOR)) return;
+  // While filtering, groups are held open by the filter, not the reader.
+  if (item.closest(`.${FILTERING_CLASS}`)) return;
   setTimeout(() => {
     if (isOpenGroup(item)) closeOpenSiblings(item);
   });
@@ -31,6 +34,12 @@ export interface SidebarAccordionOptions {
    * @default true
    */
   closeOthers?: boolean;
+  /**
+   * Add a filter field to the top of the sidebar. Pass `true`, or the
+   * options for {@link useSidebarFilter}.
+   * @default false
+   */
+  filter?: boolean | SidebarFilterOptions;
 }
 
 /**
@@ -54,14 +63,16 @@ export interface SidebarAccordionOptions {
  * };
  * ```
  *
- * Pass `{ closeOthers: false }` to stop it closing other groups.
+ * Pass `{ closeOthers: false }` to stop it closing other groups, and
+ * `{ filter: true }` to add a filter field to the top of the sidebar.
  *
  * Does nothing during the server-side build.
  */
 export function useSidebarAccordion(options: SidebarAccordionOptions = {}): void {
   if (!vitepress.inBrowser) return;
-  const { closeOthers = true } = options;
+  const { closeOthers = true, filter = false } = options;
   const route = vitepress.useRoute();
+  if (filter) useSidebarFilter(filter === true ? {} : filter);
 
   if (closeOthers) {
     onMounted(() => document.addEventListener('click', handleSidebarClick, true));

@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-16
+
+### Added
+
+- `filter` option for `useSidebarAccordion()`, and `useSidebarFilter()` to use it on its own: a filter field at the top of the sidebar. It narrows the sidebar to the matching pages, holding open the groups above each one, and puts every group back as it was once cleared. Words can match the groups above a page, case and accents are ignored, and matches are highlighted. It only appears on sidebars with at least `minItems` links (20 by default), and its wording can be changed through `labels`.
+- `filterSidebar()`, `clearSidebarFilter()`, `foldText()` and `parseQuery()` exports, with the filter's class, attribute and highlight names.
+
 ## [0.2.0] - 2026-10-16
 
 ### Added

@@ -4,6 +4,8 @@
  */
 export interface SidebarNode {
   id: string;
+  /** The item's title; its id when not given. */
+  text?: string;
   open?: boolean;
   active?: boolean;
   items?: SidebarNode[];
@@ -16,13 +18,16 @@ function renderItem(node: SidebarNode, depth: number): string {
     `level-${depth}`,
     isGroup && 'collapsible',
     isGroup && !node.open && 'collapsed',
+    !isGroup && 'is-link',
     !isGroup && node.active && 'is-active',
   ].filter(Boolean);
+  const text = `<p class="text">${node.text ?? node.id}</p>`;
+  const header = isGroup ? text : `<a class="link" href="/${node.id}">${text}</a>`;
   const caret = isGroup ? '<button type="button" class="caret"></button>' : '';
   const items = isGroup
     ? `<ul class="items"><li>${node.items!.map((child) => renderItem(child, depth + 1)).join('')}</li></ul>`
     : '';
-  return `<section id="${node.id}" class="${classes.join(' ')}"><div class="item"><p class="text">${node.id}</p>${caret}</div>${items}</section>`;
+  return `<section id="${node.id}" class="${classes.join(' ')}"><div class="item">${header}${caret}</div>${items}</section>`;
 }
 
 /** Marks every group above an active page with `has-active`, as VitePress does. */
@@ -38,7 +43,7 @@ function markActiveBranch(root: Element): void {
 
 /** Renders `nodes` into the document. Each caret toggles its group, as VitePress's does. */
 export function renderSidebar(nodes: SidebarNode[]): HTMLElement {
-  document.body.innerHTML = `<aside class="VPSidebar"><nav>${nodes
+  document.body.innerHTML = `<aside class="VPSidebar"><div class="curtain"></div><nav>${nodes
     .map((node) => `<div class="group">${renderItem(node, 0)}</div>`)
     .join('')}</nav></aside>`;
   const sidebar = document.querySelector<HTMLElement>('.VPSidebar')!;

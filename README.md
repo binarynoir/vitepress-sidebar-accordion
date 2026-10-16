@@ -85,6 +85,7 @@ alone.
 | Option        | Default | What it does                                                                                                                  |
 | ------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | `closeOthers` | `true`  | Close the other groups at the same level when a group is opened, and the branches beside the current page's after navigating. |
+| `filter`      | `false` | Add a filter field to the top of the sidebar. `true`, or the [filter options](#filter).                                       |
 
 Set `closeOthers: false` to let readers open and close groups one by one
 without the others closing. They can keep several groups open, or start
@@ -95,6 +96,58 @@ closed.
 ```ts
 useSidebarAccordion({ closeOthers: false });
 ```
+
+### Filter
+
+On a large site, a filter field at the top of the sidebar helps readers find a
+page among hundreds:
+
+```ts
+useSidebarAccordion({ filter: true });
+```
+
+- **It narrows; it doesn't expand everything.** Only the pages that match are
+  shown, with the groups above them held open, so each match keeps its place
+  in the tree. A group whose name matches shows everything inside it.
+- **Words narrow the match, and can name a group.** `guide plugins` finds
+  "Plugins" under "Guide". Case and accents are ignored, and matching words are
+  highlighted.
+- **Clearing it puts the sidebar back as it was.** The filter never opens or
+  closes a group itself, so the groups the reader had open come back, and the
+  current page is scrolled into view.
+- **It stays out of the way.** It only appears when the sidebar has at least
+  `minItems` links, and it stays at the top of the sidebar as the reader
+  scrolls. It is kept between pages until it is cleared.
+- **Keyboard:** <kbd>Enter</kbd> opens the first match, <kbd>↓</kbd> and
+  <kbd>↑</kbd> move through the matches, and <kbd>Esc</kbd> clears the filter.
+  Screen readers hear the number of matches as it changes.
+
+| Option     | Default | What it does                                                                             |
+| ---------- | ------- | ---------------------------------------------------------------------------------------- |
+| `minItems` | `20`    | Only show the filter when the sidebar has at least this many links. `0` always shows it. |
+| `labels`   |         | Your own wording, for example to translate it. See below.                                |
+
+```ts
+useSidebarAccordion({
+  filter: {
+    minItems: 50,
+    labels: {
+      placeholder: 'Filtrer les pages',
+      label: 'Filtrer la barre latérale',
+      clear: 'Effacer le filtre',
+      noResults: (query) => `Aucune page ne correspond à « ${query} ».`,
+      results: (count) => `${count} résultat${count === 1 ? '' : 's'}`,
+    },
+  },
+});
+```
+
+To filter the sidebar without the accordion, call `useSidebarFilter()` from
+your theme's `setup` instead; it takes the same options.
+
+The filter matches page titles in the sidebar. To search the text of your
+pages, use VitePress's [site search](https://vitepress.dev/reference/default-theme-search)
+alongside it.
 
 ### With vitepress-auto-sidebar
 
@@ -138,7 +191,12 @@ default theme's sidebar, or a custom one that renders the same markup.
 ```ts
 import {
   useSidebarAccordion,
+  useSidebarFilter,
   handleSidebarClick,
+  filterSidebar,
+  clearSidebarFilter,
+  foldText,
+  parseQuery,
   closeOpenSiblings,
   getSiblingItems,
   isOpenGroup,
@@ -149,8 +207,18 @@ import {
   OPEN_GROUP_SELECTOR,
   ACTIVE_BRANCH_SELECTOR,
   ITEM_HEADER_SELECTOR,
+  FILTERING_CLASS,
+  FILTER_HIDDEN_ATTR,
+  FILTER_OPEN_ATTR,
+  FILTER_MATCH_ATTR,
+  FILTER_FIRST_ATTR,
+  FILTER_HIGHLIGHT,
 } from '@binarynoir/vitepress-sidebar-accordion';
-import type { SidebarAccordionOptions } from '@binarynoir/vitepress-sidebar-accordion';
+import type {
+  SidebarAccordionOptions,
+  SidebarFilterOptions,
+  SidebarFilterLabels,
+} from '@binarynoir/vitepress-sidebar-accordion';
 ```
 
 `useSidebarAccordion()` is all most sites need. The rest are the pieces it is
